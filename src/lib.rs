@@ -4,7 +4,6 @@ use ark_marlin::{Marlin, Proof};
 use ark_poly::univariate::DensePolynomial;
 use ark_poly_commit::marlin_pc::MarlinKZG10;
 use ark_serialize::{CanonicalDeserialize, CanonicalSerialize};
-// use noir_field::FieldElement;
 use acvm::acir::FieldElement;
 use serialiser::serialise;
 
@@ -83,7 +82,6 @@ mod test {
     use super::*;
     use acvm::acir::circuit::{Gate, PublicInputs};
     use acvm::acir::native_types::{Expression, Witness};
-    // use noir_field::FieldElement;
     use acvm::acir::FieldElement;
     
     #[test]
