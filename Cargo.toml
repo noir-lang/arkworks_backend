@@ -18,7 +18,7 @@ ark-bn254 = { version = "0.3.0", default-features = false, features = [
 ark-bls12-381 = { version = "0.3.0", default-features = false, features = [
     "curve",
 ] }
-acvm = { git = "https://github.com/noir-lang/noir" }
+acvm = { git = "https://github.com/noir-lang/noir", branch = "configure-marlin" }
 ark-marlin = { version = "0.3.0", default-features = false }
 ark-poly-commit = { version = "0.3.0", default-features = false }
 ark-poly = { version = "0.3.0", default-features = false }
@@ -34,5 +34,4 @@ num-traits = "0.2.8"
 # which means we need to add config flags for that dependency too
 default = ["bn254"]
 bn254 = ["acvm/bn254"]
-# Add this back once marlin update PR is merged into noir that updates acvm features
-# bls12_381 = ["acvm/bls12_381"]
+bls12_381 = ["acvm/bls12_381"]
