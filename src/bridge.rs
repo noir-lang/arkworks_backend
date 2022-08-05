@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-use acir::circuit::PublicInputs;
-use acir::native_types::Witness;
+use acvm::acir::circuit::PublicInputs;
+use acvm::acir::native_types::Witness;
 use ark_ff::Field;
 use ark_relations::{
     lc,

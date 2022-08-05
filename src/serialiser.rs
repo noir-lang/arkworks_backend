@@ -1,5 +1,5 @@
 use crate::concrete_cfg::{from_fe, CurveAcir, CurveAcirArithGate, Fr};
-use acir::{circuit::Circuit, native_types::Arithmetic};
+use acvm::acir::{circuit::Circuit, native_types::Expression};
 
 /// Converts an ACIR into an ACIR struct that
 /// the arkworks backend can consume
@@ -31,8 +31,8 @@ impl From<(Circuit, Vec<Fr>)> for CurveAcir {
     }
 }
 
-impl From<Arithmetic> for CurveAcirArithGate {
-    fn from(arith_gate: Arithmetic) -> CurveAcirArithGate {
+impl From<Expression> for CurveAcirArithGate {
+    fn from(arith_gate: Expression) -> CurveAcirArithGate {
         let converted_mul_terms: Vec<_> = arith_gate
             .mul_terms
             .into_iter()
