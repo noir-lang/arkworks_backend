@@ -1,5 +1,5 @@
 use crate::bridge::{AcirArithGate, AcirCircuit};
-use noir_field::FieldElement;
+use acvm::acir::FieldElement;
 
 pub type CurveAcir = AcirCircuit<Fr>;
 pub type CurveAcirArithGate = AcirArithGate<Fr>;

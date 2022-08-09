@@ -1,10 +1,10 @@
-use acir::circuit::Circuit;
+use acvm::acir::circuit::Circuit;
 use ark_ff::Zero;
 use ark_marlin::{Marlin, Proof};
 use ark_poly::univariate::DensePolynomial;
 use ark_poly_commit::marlin_pc::MarlinKZG10;
 use ark_serialize::{CanonicalDeserialize, CanonicalSerialize};
-use noir_field::FieldElement;
+use acvm::acir::FieldElement;
 use serialiser::serialise;
 
 pub mod bridge;
@@ -67,7 +67,7 @@ fn compute_num_constraints(acir: &Circuit) -> usize {
     let mut num_gates = acir.gates.len();
 
     for gate in acir.gates.iter() {
-        if let acir::circuit::Gate::Arithmetic(arith) = gate {
+        if let acvm::acir::circuit::Gate::Arithmetic(arith) = gate {
             num_gates += arith.num_mul_terms() + 1; // plus one for the linear combination gate
         } else {
             unreachable!("currently we do not support non-arithmetic gates")
@@ -80,17 +80,17 @@ fn compute_num_constraints(acir: &Circuit) -> usize {
 #[cfg(test)]
 mod test {
     use super::*;
-    use acir::circuit::{Gate, PublicInputs};
-    use acir::native_types::{Arithmetic, Witness};
-    use noir_field::FieldElement;
-
+    use acvm::acir::circuit::{Gate, PublicInputs};
+    use acvm::acir::native_types::{Expression, Witness};
+    use acvm::acir::FieldElement;
+    
     #[test]
     fn simple_equal() {
         let a = Witness(1);
         let b = Witness(2);
 
         // assert a == b
-        let arith = Arithmetic {
+        let arith = Expression {
             mul_terms: vec![],
             linear_combinations: vec![(FieldElement::one(), a), (-FieldElement::one(), b)],
             q_c: FieldElement::zero(),
@@ -101,8 +101,8 @@ mod test {
             gates: vec![gate],
             public_inputs: PublicInputs(vec![Witness(1)]),
         };
-        let a_val = FieldElement::from(6);
-        let b_val = FieldElement::from(6);
+        let a_val = FieldElement::from(6_i128);
+        let b_val = FieldElement::from(6_i128);
         let values = vec![&a_val, &b_val];
 
         let proof = prove(circ.clone(), values);
