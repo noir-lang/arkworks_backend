@@ -18,7 +18,7 @@ ark-bn254 = { version = "0.3.0", default-features = false, features = [
 ark-bls12-381 = { version = "0.3.0", default-features = false, features = [
     "curve",
 ] }
-acvm = { git = "https://github.com/noir-lang/noir", branch = "configure-marlin" }  # This can be updated to the main branch once the PR updating the acvm features is merged into master
+acvm = { git = "https://github.com/noir-lang/noir" }
 ark-marlin = { version = "0.3.0", default-features = false }
 ark-poly-commit = { version = "0.3.0", default-features = false }
 ark-poly = { version = "0.3.0", default-features = false }
