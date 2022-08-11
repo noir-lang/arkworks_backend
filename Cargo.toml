@@ -18,7 +18,7 @@ ark-bn254 = { version = "0.3.0", default-features = false, features = [
 ark-bls12-381 = { version = "0.3.0", default-features = false, features = [
     "curve",
 ] }
-acvm = { git = "https://github.com/noir-lang/noir", branch = "refactor-pwg" }
+acvm = { git = "https://github.com/noir-lang/noir", rev = "cc5ee63072e09779bebd7e7dd054ae16be307d7f" }
 ark-marlin = { version = "0.3.0", default-features = false }
 ark-poly-commit = { version = "0.3.0", default-features = false }
 ark-poly = { version = "0.3.0", default-features = false }
