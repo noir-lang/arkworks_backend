@@ -67,10 +67,10 @@ fn compute_num_constraints(acir: &Circuit) -> usize {
     let mut num_gates = acir.gates.len();
 
     for gate in acir.gates.iter() {
-        if let acvm::acir::circuit::Gate::Arithmetic(arith) = gate {
-            num_gates += arith.num_mul_terms() + 1; // plus one for the linear combination gate
-        } else {
-            unreachable!("currently we do not support non-arithmetic gates")
+        match gate {
+            acvm::acir::circuit::Gate::Arithmetic(arith) => num_gates += arith.num_mul_terms() + 1, // plus one for the linear combination gate
+            acvm::acir::circuit::Gate::Directive(_) => (),
+            _ => unreachable!("currently we do not support non-arithmetic gates {:?}", gate)
         }
     }
 
