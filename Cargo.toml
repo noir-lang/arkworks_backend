@@ -26,9 +26,6 @@ ark-relations = { version = "0.3.0", default-features = false }
 blake2 = { version = "0.9", default-features = false }
 cfg-if = "1.0.0"
 
-num-bigint = "0.4"
-num-traits = "0.2.8"
-
 [features]
 # XXX: We probably want to use the re-exported field in acir
 # which means we need to add config flags for that dependency too
