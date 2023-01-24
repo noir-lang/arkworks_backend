@@ -16,7 +16,6 @@ impl From<(Circuit, Vec<Fr>)> for CurveAcir {
             .opcodes
             .into_iter()
             .filter(|opcode| opcode.is_arithmetic())
-            // TODO: What is a better way to handle the Option returned by opcode.arithmetic()
             .map(|opcode| CurveAcirArithGate::from(opcode.arithmetic().unwrap()))
             .collect();
 
