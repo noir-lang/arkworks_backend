@@ -18,7 +18,7 @@ ark-bn254 = { version = "0.3.0", default-features = false, features = [
 ark-bls12-381 = { version = "0.3.0", default-features = false, features = [
     "curve",
 ] }
-acvm = { git = "https://github.com/noir-lang/noir", rev = "cc5ee63072e09779bebd7e7dd054ae16be307d7f" }
+acvm = "0.3.1"
 ark-marlin = { version = "0.3.0", default-features = false }
 ark-poly-commit = { version = "0.3.0", default-features = false }
 ark-poly = { version = "0.3.0", default-features = false }
@@ -26,14 +26,11 @@ ark-relations = { version = "0.3.0", default-features = false }
 blake2 = { version = "0.9", default-features = false }
 cfg-if = "1.0.0"
 
-num-bigint = "0.4"
-num-traits = "0.2.8"
-
 [features]
 # XXX: We probably want to use the re-exported field in acir
 # which means we need to add config flags for that dependency too
-# not specifying a default sometimes gives an error that "extern location for acvm does not exist" on some imports locally, 
-# but it still builds when specifying `marlin_arkworks_backend/[field name]` in the Cargo.toml inside the nargo crate, uncomment to remove extern location errors 
+# not specifying a default sometimes gives an error that "extern location for acvm does not exist" on some imports locally,
+# but it still builds when specifying `marlin_arkworks_backend/[field name]` in the Cargo.toml inside the nargo crate, uncomment to remove extern location errors
 # default = ["bls12_381"]
 bn254 = ["acvm/bn254"]
 bls12_381 = ["acvm/bls12_381"]

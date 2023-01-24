@@ -1,10 +1,10 @@
 use acvm::acir::circuit::Circuit;
+use acvm::FieldElement;
 use ark_ff::Zero;
 use ark_marlin::{Marlin, Proof};
 use ark_poly::univariate::DensePolynomial;
 use ark_poly_commit::marlin_pc::MarlinKZG10;
 use ark_serialize::{CanonicalDeserialize, CanonicalSerialize};
-use acvm::acir::FieldElement;
 use serialiser::serialise;
 
 pub mod bridge;
@@ -64,26 +64,31 @@ pub fn verify(acir: Circuit, proof: &[u8], public_inputs: Vec<FieldElement>) -> 
 
 fn compute_num_constraints(acir: &Circuit) -> usize {
     // each multiplication term adds an extra constraint
-    let mut num_gates = acir.gates.len();
+    let mut num_opcodes = acir.opcodes.len();
 
-    for gate in acir.gates.iter() {
-        match gate {
-            acvm::acir::circuit::Gate::Arithmetic(arith) => num_gates += arith.num_mul_terms() + 1, // plus one for the linear combination gate
-            acvm::acir::circuit::Gate::Directive(_) => (),
-            _ => unreachable!("currently we do not support non-arithmetic gates {:?}", gate)
+    for opcode in acir.opcodes.iter() {
+        match opcode {
+            acvm::acir::circuit::Opcode::Arithmetic(arith) => {
+                num_opcodes += arith.num_mul_terms() + 1
+            } // plus one for the linear combination gate
+            acvm::acir::circuit::Opcode::Directive(_) => (),
+            _ => unreachable!(
+                "currently we do not support non-arithmetic opcodes {:?}",
+                opcode
+            ),
         }
     }
 
-    num_gates
+    num_opcodes
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use acvm::acir::circuit::{Gate, PublicInputs};
+    use acvm::acir::circuit::{Opcode, PublicInputs};
     use acvm::acir::native_types::{Expression, Witness};
-    use acvm::acir::FieldElement;
-    
+    use acvm::FieldElement;
+
     #[test]
     fn simple_equal() {
         let a = Witness(1);
@@ -95,10 +100,10 @@ mod test {
             linear_combinations: vec![(FieldElement::one(), a), (-FieldElement::one(), b)],
             q_c: FieldElement::zero(),
         };
-        let gate = Gate::Arithmetic(arith);
+        let opcode = Opcode::Arithmetic(arith);
         let circ = Circuit {
             current_witness_index: 2,
-            gates: vec![gate],
+            opcodes: vec![opcode],
             public_inputs: PublicInputs(vec![Witness(1)]),
         };
         let a_val = FieldElement::from(6_i128);
