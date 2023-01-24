@@ -13,10 +13,11 @@ impl From<(Circuit, Vec<Fr>)> for CurveAcir {
         // so we extract all of the arithmetic gates only
         let circ = circ_val.0;
         let arith_gates: Vec<_> = circ
-            .gates
+            .opcodes
             .into_iter()
-            .filter(|gate| gate.is_arithmetic())
-            .map(|gate| CurveAcirArithGate::from(gate.arithmetic()))
+            .filter(|opcode| opcode.is_arithmetic())
+            // TODO: What is a better way to handle the Option returned by opcode.arithmetic()
+            .map(|opcode| CurveAcirArithGate::from(opcode.arithmetic().unwrap()))
             .collect();
 
         let values = circ_val.1;
