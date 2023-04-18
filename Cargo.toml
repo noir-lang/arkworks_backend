@@ -31,6 +31,6 @@ cfg-if = "1.0.0"
 # which means we need to add config flags for that dependency too
 # not specifying a default sometimes gives an error that "extern location for acvm does not exist" on some imports locally,
 # but it still builds when specifying `marlin_arkworks_backend/[field name]` in the Cargo.toml inside the nargo crate, uncomment to remove extern location errors
-# default = ["bls12_381"]
+default = ["bn254"]
 bn254 = ["acvm/bn254"]
 bls12_381 = ["acvm/bls12_381"]
