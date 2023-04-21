@@ -10,12 +10,12 @@ use acvm::{
 };
 
 /// Converts an ACIR into an ACIR struct that the arkworks backend can consume.
-pub fn serialize(acir: Circuit, witness_map: BTreeMap<Witness, FieldElement>) -> CurveAcir {
+pub fn serialize(acir: &Circuit, witness_map: BTreeMap<Witness, FieldElement>) -> CurveAcir {
     (acir, witness_map).into()
 }
 
-impl From<(Circuit, BTreeMap<Witness, FieldElement>)> for CurveAcir {
-    fn from(circ_val: (Circuit, BTreeMap<Witness, FieldElement>)) -> CurveAcir {
+impl From<(&Circuit, BTreeMap<Witness, FieldElement>)> for CurveAcir {
+    fn from(circ_val: (&Circuit, BTreeMap<Witness, FieldElement>)) -> CurveAcir {
         // Currently non-arithmetic gates are not supported
         // so we extract all of the arithmetic gates only
         let (circuit, witness_map) = circ_val;
@@ -23,9 +23,9 @@ impl From<(Circuit, BTreeMap<Witness, FieldElement>)> for CurveAcir {
         let public_inputs = circuit.public_inputs();
         let arith_gates: Vec<_> = circuit
             .opcodes
-            .into_iter()
+            .iter()
             .filter(|opcode| opcode.is_arithmetic())
-            .map(|opcode| CurveAcirArithGate::from(opcode.arithmetic().unwrap()))
+            .map(|opcode| CurveAcirArithGate::from(opcode.clone().arithmetic().unwrap()))
             .collect();
 
         let values: Vec<Fr> = witness_map.into_values().map(from_fe).collect();
