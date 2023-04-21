@@ -14,6 +14,12 @@ pub fn serialize(acir: &Circuit, witness_map: BTreeMap<Witness, FieldElement>) -
     (acir, witness_map).into()
 }
 
+impl From<&Circuit> for CurveAcir {
+    fn from(circuit: &Circuit) -> CurveAcir {
+        CurveAcir::from((circuit, BTreeMap::new()))
+    }
+}
+
 impl From<(&Circuit, BTreeMap<Witness, FieldElement>)> for CurveAcir {
     fn from(circ_val: (&Circuit, BTreeMap<Witness, FieldElement>)) -> CurveAcir {
         // Currently non-arithmetic gates are not supported
