@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use acvm::acir::circuit::PublicInputs;
 use acvm::acir::native_types::Witness;
 use ark_ff::Field;
@@ -9,6 +7,7 @@ use ark_relations::{
         ConstraintSynthesizer, ConstraintSystemRef, LinearCombination, SynthesisError, Variable,
     },
 };
+
 // AcirCircuit and AcirArithGate are structs that arkworks can synthesise.
 //
 // The difference between these structures and the ACIR structure that the compiler uses is the following:
@@ -29,7 +28,7 @@ pub struct AcirCircuit<F: Field> {
     pub(crate) gates: Vec<AcirArithGate<F>>,
     pub(crate) public_inputs: PublicInputs,
     pub(crate) values: Vec<F>,
-    pub(crate) num_variables: usize,
+    // pub(crate) num_variables: usize,
 }
 
 #[derive(Clone, Debug)]
@@ -77,7 +76,7 @@ impl<ConstraintF: Field> ConstraintSynthesizer<ConstraintF> for AcirCircuit<Cons
             for add_term in gate.add_terms {
                 let coeff = add_term.0;
                 let add_var = variables[add_term.1.as_usize()];
-                arith_gate += (coeff, add_var)
+                arith_gate += (coeff, add_var);
             }
 
             // Process constant term

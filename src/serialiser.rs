@@ -1,32 +1,41 @@
-use crate::concrete_cfg::{from_fe, CurveAcir, CurveAcirArithGate, Fr};
-use acvm::acir::{circuit::Circuit, native_types::Expression};
+use std::collections::BTreeMap;
 
-/// Converts an ACIR into an ACIR struct that
-/// the arkworks backend can consume
-pub fn serialise(acir: Circuit, values: Vec<Fr>) -> CurveAcir {
-    (acir, values).into()
+use crate::concrete_cfg::{from_fe, CurveAcir, CurveAcirArithGate, Fr};
+use acvm::{
+    acir::{
+        circuit::Circuit,
+        native_types::{Expression, Witness},
+    },
+    FieldElement,
+};
+
+/// Converts an ACIR into an ACIR struct that the arkworks backend can consume.
+pub fn serialize(acir: Circuit, witness_map: BTreeMap<Witness, FieldElement>) -> CurveAcir {
+    (acir, witness_map).into()
 }
 
-impl From<(Circuit, Vec<Fr>)> for CurveAcir {
-    fn from(circ_val: (Circuit, Vec<Fr>)) -> CurveAcir {
+impl From<(Circuit, BTreeMap<Witness, FieldElement>)> for CurveAcir {
+    fn from(circ_val: (Circuit, BTreeMap<Witness, FieldElement>)) -> CurveAcir {
         // Currently non-arithmetic gates are not supported
         // so we extract all of the arithmetic gates only
-        let circ = circ_val.0;
-        let arith_gates: Vec<_> = circ
+        let (circuit, witness_map) = circ_val;
+
+        let public_inputs = circuit.public_inputs();
+        let arith_gates: Vec<_> = circuit
             .opcodes
             .into_iter()
             .filter(|opcode| opcode.is_arithmetic())
             .map(|opcode| CurveAcirArithGate::from(opcode.arithmetic().unwrap()))
             .collect();
 
-        let values = circ_val.1;
+        let values: Vec<Fr> = witness_map.into_values().map(from_fe).collect();
 
-        let num_vars = (circ.current_witness_index + 1) as usize;
+        // let num_variables = (circ.current_witness_index + 1) as usize;
         CurveAcir {
             gates: arith_gates,
             values,
-            num_variables: num_vars,
-            public_inputs: circ.public_inputs,
+            // num_variables,
+            public_inputs,
         }
     }
 }

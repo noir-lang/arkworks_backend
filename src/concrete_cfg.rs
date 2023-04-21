@@ -1,8 +1,8 @@
 use crate::bridge::{AcirArithGate, AcirCircuit};
 use acvm::FieldElement;
 
-pub type CurveAcir = AcirCircuit<Fr>;
-pub type CurveAcirArithGate = AcirArithGate<Fr>;
+pub(crate) type CurveAcir = AcirCircuit<Fr>;
+pub(crate) type CurveAcirArithGate = AcirArithGate<Fr>;
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "bn254")] {
@@ -10,7 +10,7 @@ cfg_if::cfg_if! {
 
         // Converts a FieldElement to a Fr
         // noir_field uses arkworks for bn254
-        pub fn from_fe(fe : FieldElement) -> Fr {
+        pub(crate) fn from_fe(fe : FieldElement) -> Fr {
             fe.into_repr()
         }
     } else if #[cfg(feature = "bls12_381")] {
