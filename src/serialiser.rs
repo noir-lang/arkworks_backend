@@ -1,6 +1,6 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, convert::TryInto};
 
-use crate::concrete_cfg::{from_fe, CurveAcir, CurveAcirArithGate, Fr};
+use crate::concrete_cfg::{from_fe, CurveAcir, CurveAcirArithGate};
 use acvm::{
     acir::{
         circuit::Circuit,
@@ -28,9 +28,20 @@ impl From<(&Circuit, BTreeMap<Witness, FieldElement>)> for CurveAcir {
             .map(|opcode| CurveAcirArithGate::from(opcode.clone().arithmetic().unwrap()))
             .collect();
 
-        let values: Vec<Fr> = witness_map.into_values().map(from_fe).collect();
+        let num_variables: usize = circuit.num_vars().try_into().unwrap();
 
-        // let num_variables = (circ.current_witness_index + 1) as usize;
+        let values: BTreeMap<Witness, _> = (0..num_variables)
+            .map(|witness_index| {
+                // Get the value if it exists. If i does not, then we fill it with the zero value
+                let witness = Witness(witness_index as u32);
+                let value = witness_map
+                    .get(&witness)
+                    .map_or(FieldElement::zero(), |field| *field);
+
+                (witness, from_fe(value))
+            })
+            .collect();
+
         CurveAcir {
             gates: arith_gates,
             values,
