@@ -7,7 +7,7 @@ use acvm::acir::circuit::Circuit;
 
 pub mod bridge;
 mod concrete_cfg;
-pub use concrete_cfg::{Curve, Fr};
+pub use concrete_cfg::{from_fe, Curve, Fr};
 pub mod serialiser;
 
 pub fn compute_num_constraints(acir: &Circuit) -> usize {

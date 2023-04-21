@@ -10,7 +10,7 @@ cfg_if::cfg_if! {
 
         // Converts a FieldElement to a Fr
         // noir_field uses arkworks for bn254
-        pub(crate) fn from_fe(fe : FieldElement) -> Fr {
+        pub fn from_fe(fe : FieldElement) -> Fr {
             fe.into_repr()
         }
     } else if #[cfg(feature = "bls12_381")] {
