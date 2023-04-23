@@ -35,7 +35,7 @@ pub struct AcirCircuit<F: Field> {
 }
 
 #[derive(Clone, Debug)]
-pub struct AcirArithGate<F: Field> {
+pub(crate) struct AcirArithGate<F: Field> {
     pub(crate) mul_terms: Vec<(F, Witness, Witness)>,
     pub(crate) add_terms: Vec<(F, Witness)>,
     pub(crate) constant_term: F,

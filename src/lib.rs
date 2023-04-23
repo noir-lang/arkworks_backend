@@ -3,24 +3,25 @@
 #![warn(unreachable_pub)]
 #![warn(clippy::semicolon_if_nothing_returned)]
 
-use acvm::acir::circuit::Circuit;
+use acvm::acir::circuit::{Circuit, Opcode};
 
 pub mod bridge;
 mod concrete_cfg;
-pub use concrete_cfg::{from_fe, Curve, Fr};
-pub mod serialiser;
+mod serializer;
 
-pub fn compute_num_constraints(acir: &Circuit) -> usize {
+pub use concrete_cfg::{from_fe, Curve, CurveAcir, Fr};
+
+pub fn compute_num_constraints(acir: &Circuit) -> u32 {
     let mut num_opcodes = acir.opcodes.len();
 
     for opcode in acir.opcodes.iter() {
         match opcode {
-            acvm::acir::circuit::Opcode::Arithmetic(arith) => {
+            Opcode::Arithmetic(arith) => {
                 // Each multiplication term adds an extra constraint
                 // plus one for the linear combination gate.
                 num_opcodes += arith.num_mul_terms() + 1;
             }
-            acvm::acir::circuit::Opcode::Directive(_) => (),
+            Opcode::Directive(_) => (),
             _ => unreachable!(
                 "currently we do not support non-arithmetic opcodes {:?}",
                 opcode
@@ -28,7 +29,7 @@ pub fn compute_num_constraints(acir: &Circuit) -> usize {
         }
     }
 
-    num_opcodes
+    num_opcodes as u32
 }
 
 #[cfg(test)]

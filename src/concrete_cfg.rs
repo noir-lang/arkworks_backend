@@ -1,7 +1,7 @@
 use crate::bridge::{AcirArithGate, AcirCircuit};
 use acvm::FieldElement;
 
-pub(crate) type CurveAcir = AcirCircuit<Fr>;
+pub type CurveAcir = AcirCircuit<Fr>;
 pub(crate) type CurveAcirArithGate = AcirArithGate<Fr>;
 
 cfg_if::cfg_if! {

@@ -9,11 +9,6 @@ use acvm::{
     FieldElement,
 };
 
-/// Converts an ACIR into an ACIR struct that the arkworks backend can consume.
-pub fn serialize(acir: &Circuit, witness_map: BTreeMap<Witness, FieldElement>) -> CurveAcir {
-    (acir, witness_map).into()
-}
-
 impl From<&Circuit> for CurveAcir {
     fn from(circuit: &Circuit) -> CurveAcir {
         CurveAcir::from((circuit, BTreeMap::new()))
