@@ -4,19 +4,19 @@ use crate::concrete_cfg::{from_fe, CurveAcir, CurveAcirArithGate};
 use acvm::{
     acir::{
         circuit::Circuit,
-        native_types::{Expression, Witness},
+        native_types::{Expression, Witness, WitnessMap},
     },
     FieldElement,
 };
 
 impl From<&Circuit> for CurveAcir {
     fn from(circuit: &Circuit) -> CurveAcir {
-        CurveAcir::from((circuit, BTreeMap::new()))
+        CurveAcir::from((circuit, WitnessMap::new()))
     }
 }
 
-impl From<(&Circuit, BTreeMap<Witness, FieldElement>)> for CurveAcir {
-    fn from(circ_val: (&Circuit, BTreeMap<Witness, FieldElement>)) -> CurveAcir {
+impl From<(&Circuit, WitnessMap)> for CurveAcir {
+    fn from(circ_val: (&Circuit, WitnessMap)) -> CurveAcir {
         // Currently non-arithmetic gates are not supported
         // so we extract all of the arithmetic gates only
         let (circuit, witness_map) = circ_val;
