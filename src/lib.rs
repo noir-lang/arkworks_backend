@@ -1,77 +1,27 @@
-use acvm::acir::circuit::Circuit;
-use acvm::FieldElement;
-use ark_ff::Zero;
-use ark_marlin::{Marlin, Proof};
-use ark_poly::univariate::DensePolynomial;
-use ark_poly_commit::marlin_pc::MarlinKZG10;
-use ark_serialize::{CanonicalDeserialize, CanonicalSerialize};
-use serialiser::serialise;
+#![forbid(unsafe_code)]
+#![warn(unused_crate_dependencies, unused_extern_crates)]
+#![warn(unreachable_pub)]
+#![warn(clippy::semicolon_if_nothing_returned)]
+
+use acvm::acir::circuit::{Circuit, Opcode};
 
 pub mod bridge;
 mod concrete_cfg;
-pub use concrete_cfg::{Curve, Fr};
-pub mod serialiser;
+mod serializer;
 
-type MultiPC = MarlinKZG10<Curve, DensePolynomial<Fr>>;
-type MarlinInst = Marlin<Fr, MultiPC, blake2::Blake2s>;
-type MarlinBn254Proof = Proof<Fr, MultiPC>;
+pub use concrete_cfg::{from_fe, Curve, CurveAcir, Fr};
 
-// Creates a proof using the Marlin proving system
-pub fn prove(acir: Circuit, values: Vec<&FieldElement>) -> Vec<u8> {
-    let num_vars = acir.num_vars() as usize;
-    let num_constraints = compute_num_constraints(&acir);
-
-    // The first variable is zero in Noir.
-    // In PLONK there is no Variable::zero
-    let values: Vec<_> = std::iter::once(&FieldElement::zero())
-        .chain(values.into_iter())
-        .copied()
-        .map(|x| x.into_repr())
-        .collect();
-
-    let concrete_circ = serialise(acir, values);
-
-    // XXX: This should not be used in production
-    let rng = &mut ark_std::test_rng();
-
-    let universal_srs = MarlinInst::universal_setup(num_constraints, num_vars, 100, rng).unwrap();
-
-    let (index_pk, _) = MarlinInst::index(&universal_srs, concrete_circ.clone()).unwrap();
-
-    let proof = MarlinInst::prove(&index_pk, concrete_circ, rng).unwrap();
-
-    // Serialise proof
-    let mut bytes = Vec::new();
-    proof.serialize(&mut bytes).unwrap();
-    bytes
-}
-
-pub fn verify(acir: Circuit, proof: &[u8], public_inputs: Vec<FieldElement>) -> bool {
-    let num_vars = acir.num_vars() as usize;
-    let num_constraints = compute_num_constraints(&acir);
-    let concrete_circ = serialise(acir, vec![Fr::zero(); num_vars]);
-
-    let rng = &mut ark_std::test_rng();
-
-    let universal_srs = MarlinInst::universal_setup(num_constraints, num_vars, 100, rng).unwrap();
-
-    let (_, index_vk) = MarlinInst::index(&universal_srs, concrete_circ).unwrap();
-
-    let public_inputs: Vec<_> = public_inputs.into_iter().map(|x| x.into_repr()).collect();
-    let proof = MarlinBn254Proof::deserialize(proof).unwrap();
-    MarlinInst::verify(&index_vk, &public_inputs, &proof, rng).unwrap()
-}
-
-fn compute_num_constraints(acir: &Circuit) -> usize {
-    // each multiplication term adds an extra constraint
+pub fn compute_num_constraints(acir: &Circuit) -> u32 {
     let mut num_opcodes = acir.opcodes.len();
 
     for opcode in acir.opcodes.iter() {
         match opcode {
-            acvm::acir::circuit::Opcode::Arithmetic(arith) => {
-                num_opcodes += arith.num_mul_terms() + 1
-            } // plus one for the linear combination gate
-            acvm::acir::circuit::Opcode::Directive(_) => (),
+            Opcode::Arithmetic(arith) => {
+                // Each multiplication term adds an extra constraint
+                // plus one for the linear combination gate.
+                num_opcodes += arith.num_mul_terms() + 1;
+            }
+            Opcode::Directive(_) => (),
             _ => unreachable!(
                 "currently we do not support non-arithmetic opcodes {:?}",
                 opcode
@@ -79,11 +29,13 @@ fn compute_num_constraints(acir: &Circuit) -> usize {
         }
     }
 
-    num_opcodes
+    num_opcodes as u32
 }
 
 #[cfg(test)]
 mod test {
+    use std::collections::BTreeSet;
+
     use super::*;
     use acvm::acir::circuit::{Opcode, PublicInputs};
     use acvm::acir::native_types::{Expression, Witness};
@@ -101,18 +53,16 @@ mod test {
             q_c: FieldElement::zero(),
         };
         let opcode = Opcode::Arithmetic(arith);
-        let circ = Circuit {
+        let _circ = Circuit {
             current_witness_index: 2,
             opcodes: vec![opcode],
-            public_inputs: PublicInputs(vec![Witness(1)]),
+            public_parameters: PublicInputs(BTreeSet::from([Witness(1)])),
+            return_values: PublicInputs(BTreeSet::new()),
         };
         let a_val = FieldElement::from(6_i128);
         let b_val = FieldElement::from(6_i128);
-        let values = vec![&a_val, &b_val];
+        let _values = vec![&a_val, &b_val];
 
-        let proof = prove(circ.clone(), values);
-        let ok = verify(circ.clone(), &proof, vec![a_val]);
-
-        assert!(ok)
+        todo!("re-add some meaningful test here");
     }
 }

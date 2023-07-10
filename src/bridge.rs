@@ -1,4 +1,5 @@
-#![allow(dead_code)]
+use std::collections::BTreeMap;
+use std::convert::TryInto;
 
 use acvm::acir::circuit::PublicInputs;
 use acvm::acir::native_types::Witness;
@@ -9,6 +10,7 @@ use ark_relations::{
         ConstraintSynthesizer, ConstraintSystemRef, LinearCombination, SynthesisError, Variable,
     },
 };
+
 // AcirCircuit and AcirArithGate are structs that arkworks can synthesise.
 //
 // The difference between these structures and the ACIR structure that the compiler uses is the following:
@@ -28,12 +30,12 @@ use ark_relations::{
 pub struct AcirCircuit<F: Field> {
     pub(crate) gates: Vec<AcirArithGate<F>>,
     pub(crate) public_inputs: PublicInputs,
-    pub(crate) values: Vec<F>,
-    pub(crate) num_variables: usize,
+    pub(crate) values: BTreeMap<Witness, F>,
+    // pub(crate) num_variables: usize,
 }
 
 #[derive(Clone, Debug)]
-pub struct AcirArithGate<F: Field> {
+pub(crate) struct AcirArithGate<F: Field> {
     pub(crate) mul_terms: Vec<(F, Witness, Witness)>,
     pub(crate) add_terms: Vec<(F, Witness)>,
     pub(crate) constant_term: F,
@@ -47,8 +49,8 @@ impl<ConstraintF: Field> ConstraintSynthesizer<ConstraintF> for AcirCircuit<Cons
         let mut variables = Vec::with_capacity(self.values.len());
 
         // First create all of the witness indices by adding the values into the constraint system
-        for (i, val) in self.values.iter().enumerate() {
-            let var = if self.public_inputs.contains(i) {
+        for (i, val) in self.values.iter() {
+            let var = if self.public_inputs.contains(i.0.try_into().unwrap()) {
                 cs.new_input_variable(|| Ok(*val))?
             } else {
                 cs.new_witness_variable(|| Ok(*val))?
@@ -64,8 +66,8 @@ impl<ConstraintF: Field> ConstraintSynthesizer<ConstraintF> for AcirCircuit<Cons
             // Process mul terms
             for mul_term in gate.mul_terms {
                 let coeff = mul_term.0;
-                let left_val = self.values[mul_term.1.as_usize()];
-                let right_val = self.values[mul_term.2.as_usize()];
+                let left_val = self.values[&mul_term.1];
+                let right_val = self.values[&mul_term.2];
 
                 let out_val = left_val * right_val;
 
@@ -77,7 +79,7 @@ impl<ConstraintF: Field> ConstraintSynthesizer<ConstraintF> for AcirCircuit<Cons
             for add_term in gate.add_terms {
                 let coeff = add_term.0;
                 let add_var = variables[add_term.1.as_usize()];
-                arith_gate += (coeff, add_var)
+                arith_gate += (coeff, add_var);
             }
 
             // Process constant term

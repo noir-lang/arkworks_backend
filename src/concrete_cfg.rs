@@ -2,7 +2,7 @@ use crate::bridge::{AcirArithGate, AcirCircuit};
 use acvm::FieldElement;
 
 pub type CurveAcir = AcirCircuit<Fr>;
-pub type CurveAcirArithGate = AcirArithGate<Fr>;
+pub(crate) type CurveAcirArithGate = AcirArithGate<Fr>;
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "bn254")] {
