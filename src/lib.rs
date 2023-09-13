@@ -58,6 +58,8 @@ mod test {
             opcodes: vec![opcode],
             public_parameters: PublicInputs(BTreeSet::from([Witness(1)])),
             return_values: PublicInputs(BTreeSet::new()),
+            private_parameters: BTreeSet::new(),
+            assert_messages: Vec::new(),
         };
         let a_val = FieldElement::from(6_i128);
         let b_val = FieldElement::from(6_i128);
